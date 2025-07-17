@@ -13,9 +13,9 @@ func main() {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 
-	cfg, err := configs.LoadEnv("../.env")
+	cfg := configs.Envs
 
-	if err != nil {
+	if err := cfg.ConnectDB(); err != nil {
 		e.Logger.Fatal(err)
 	}
 	e.Logger.Fatal(e.Start(cfg.ServerIP + ":" + cfg.ServerPort))

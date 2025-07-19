@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"bougette-backend/models"
 	"log"
 	"os"
 
@@ -57,6 +58,12 @@ func (c *Config) ConnectDB() error {
 	log.Println("Successfully connected to database")
 	c.DB = db
 	return nil
+}
+
+func (c *Config) InitializedDB() {
+	c.DB.AutoMigrate(
+		&models.Users{},
+	)
 }
 
 var Envs = loadEnv(".env")

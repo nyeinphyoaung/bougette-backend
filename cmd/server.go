@@ -25,6 +25,8 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
+	cfg.InitializedDB()
+
 	e.Use(middlewares.ServerHeader, middleware.Logger())
 	routes.InitialRoute(e, cfg.DB)
 	e.Logger.Fatal(e.Start(cfg.ServerIP + ":" + cfg.ServerPort))

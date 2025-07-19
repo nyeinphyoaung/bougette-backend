@@ -2,17 +2,22 @@ package main
 
 import (
 	"bougette-backend/configs"
+	"bougette-backend/middlewares"
 	"bougette-backend/routes"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
 	e := echo.New()
+	s := middlewares.NewStats()
+	e.Use(s.Process)
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
+	e.GET("/stats", s.Handle)
 
 	cfg := configs.Envs
 
@@ -20,6 +25,7 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
+	e.Use(middlewares.ServerHeader, middleware.Logger())
 	routes.InitialRoute(e, cfg.DB)
 	e.Logger.Fatal(e.Start(cfg.ServerIP + ":" + cfg.ServerPort))
 }

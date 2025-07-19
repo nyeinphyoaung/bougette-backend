@@ -2,6 +2,7 @@ package main
 
 import (
 	"bougette-backend/configs"
+	"bougette-backend/routes"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -18,5 +19,7 @@ func main() {
 	if err := cfg.ConnectDB(); err != nil {
 		e.Logger.Fatal(err)
 	}
+
+	routes.InitialRoute(e, cfg.DB)
 	e.Logger.Fatal(e.Start(cfg.ServerIP + ":" + cfg.ServerPort))
 }

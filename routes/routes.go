@@ -14,7 +14,8 @@ func InitialRoute(e *echo.Echo, db *gorm.DB) {
 }
 
 func initDemoRoutes(e *echo.Group, db *gorm.DB) {
-	controllers := controllers.DemoController{}
+	controllers := controllers.UsersController{}
 
-	e.GET("/demo", controllers.Demo)
+	// e.GET("/demo", controllers.Demo)
+	e.POST("/users", controllers.RegisterUser)
 }

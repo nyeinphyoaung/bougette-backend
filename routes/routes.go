@@ -4,21 +4,22 @@ import (
 	"bougette-backend/controllers"
 	"bougette-backend/repositories"
 	"bougette-backend/services"
+	"bougette-backend/utilities"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
-func InitialRoute(e *echo.Echo, db *gorm.DB) {
+func InitialRoute(e *echo.Echo, db *gorm.DB, mailer utilities.Mailer) {
 	api := e.Group("/api/v1")
 
-	initDemoRoutes(api, db)
+	initUsersRoutes(api, db, mailer)
 }
 
-func initDemoRoutes(e *echo.Group, db *gorm.DB) {
+func initUsersRoutes(e *echo.Group, db *gorm.DB, mailer utilities.Mailer) {
 	usersRepos := repositories.NewUsersRepository(db)
 	usersService := services.NewUsersService(usersRepos)
-	usersController := controllers.NewUsersController(usersService)
+	usersController := controllers.NewUsersController(usersService, mailer)
 
 	e.POST("/users", usersController.RegisterUser)
 }

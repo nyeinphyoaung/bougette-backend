@@ -4,6 +4,7 @@ import (
 	"bougette-backend/configs"
 	"bougette-backend/middlewares"
 	"bougette-backend/routes"
+	"bougette-backend/utilities"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -26,8 +27,9 @@ func main() {
 	}
 
 	cfg.InitializedDB()
+	mailer := utilities.NewMailer()
 
 	e.Use(middlewares.ServerHeader, middleware.Logger())
-	routes.InitialRoute(e, cfg.DB)
+	routes.InitialRoute(e, cfg.DB, mailer)
 	e.Logger.Fatal(e.Start(cfg.ServerIP + ":" + cfg.ServerPort))
 }

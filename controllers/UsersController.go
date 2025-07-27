@@ -5,17 +5,20 @@ import (
 	"bougette-backend/dtos"
 	"bougette-backend/models"
 	"bougette-backend/services"
+	"bougette-backend/utilities"
 	"bougette-backend/validation"
+	"fmt"
 
 	"github.com/labstack/echo/v4"
 )
 
 type UsersController struct {
 	UsersService *services.UsersService
+	Mailer       utilities.Mailer
 }
 
-func NewUsersController(usersService *services.UsersService) *UsersController {
-	return &UsersController{UsersService: usersService}
+func NewUsersController(usersService *services.UsersService, mailer utilities.Mailer) *UsersController {
+	return &UsersController{UsersService: usersService, Mailer: mailer}
 }
 
 func (u *UsersController) RegisterUser(c echo.Context) error {
@@ -48,6 +51,21 @@ func (u *UsersController) RegisterUser(c echo.Context) error {
 
 	if err := u.UsersService.RegisterUser(&user); err != nil {
 		return common.SendNotFoundResponse(c, err.Error())
+	}
+
+	mailData := utilities.MailData{
+		Subject: "Hello Bougette",
+		Meta: struct {
+			FirstName string
+			LoginLink string
+		}{
+			FirstName: *user.FirstName,
+			LoginLink: "#",
+		},
+	}
+
+	if err := u.Mailer.SendViaMail(request.Email, "welcome.html", mailData); err != nil {
+		fmt.Println("Email sent fail", err)
 	}
 
 	return common.SendSuccessResponse(c, "User registration successful", user)

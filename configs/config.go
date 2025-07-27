@@ -11,14 +11,20 @@ import (
 )
 
 type Config struct {
-	ServerIP   string
-	ServerPort string
-	DBName     string
-	DBHost     string
-	DBPort     string
-	DBUsername string
-	DBPassword string
-	DB         *gorm.DB
+	ServerIP      string
+	ServerPort    string
+	DBName        string
+	DBHost        string
+	DBPort        string
+	DBUsername    string
+	DBPassword    string
+	DB            *gorm.DB
+	MAIL_SENDER   string
+	MAIL_HOST     string
+	MAIL_PORT     string
+	MAIL_USERNAME string
+	MAIL_PASSWORD string
+	VIA_APP_NAME  string
 }
 
 func getEnvOrDefault(env string, defaultValue string) string {
@@ -44,6 +50,12 @@ func loadEnv(env string) *Config {
 	cfg.DBPort = getEnvOrDefault("DB_PORT", "3306")
 	cfg.DBUsername = getEnvOrDefault("DB_USERNAME", "nyeinphyoaung")
 	cfg.DBPassword = getEnvOrDefault("DB_PASSWORD", "password")
+	cfg.MAIL_SENDER = getEnvOrDefault("MAIL_SENDER", "")
+	cfg.MAIL_HOST = getEnvOrDefault("MAIL_HOST", "")
+	cfg.MAIL_PORT = getEnvOrDefault("MAIL_PORT", "2525")
+	cfg.MAIL_USERNAME = getEnvOrDefault("MAIL_USERNAME", "")
+	cfg.MAIL_PASSWORD = getEnvOrDefault("MAIL_PASSWORD", "")
+	cfg.VIA_APP_NAME = getEnvOrDefault("VIA_APP_NAME", "Bougette")
 	return cfg
 }
 

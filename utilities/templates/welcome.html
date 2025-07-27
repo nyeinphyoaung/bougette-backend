@@ -1,0 +1,61 @@
+{{define "subject"}}Welcome to {{.Name}}!{{end}}
+{{define "htmlBody"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to {{.Name}}!</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f5f5f5; font-family:Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5; padding:30px 0;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                    <tr>
+                        <td style="background-color:#007bff; padding:20px; text-align:center; color:#ffffff; font-size:24px; font-weight:bold;">
+                            {{.Name}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:30px; color:#333333;">
+                            <h1 style="margin-top:0; font-size:22px;">Welcome, {{.Meta.FirstName}}!</h1>
+                            <p style="font-size:16px; color:#555555; line-height:1.6;">
+                                We’re thrilled to have you onboard at <strong>{{.Name}}</strong> — your trusted platform for managing finances and achieving your goals.
+                            </p>
+                            <p style="font-size:16px; color:#555555;">With {{.Name}}, you can:</p>
+                            <ul style="font-size:16px; color:#555555; line-height:1.6; padding-left:20px;">
+                                <li>Track expenses and income easily.</li>
+                                <li>Create budgets and saving goals.</li>
+                                <li>Get personalized financial insights.</li>
+                                <li>And much more!</li>
+                            </ul>
+                            <p style="font-size:16px; color:#555555; line-height:1.6;">
+                                Get started now by logging into your account:
+                            </p>
+                            <p style="text-align:center; margin:30px 0;">
+                                <a href="{{.Meta.LoginLink}}" style="background-color:#007bff; color:#ffffff; text-decoration:none; padding:12px 24px; border-radius:5px; font-size:16px; font-weight:bold; display:inline-block;">
+                                    Log In to Your Account
+                                </a>
+                            </p>
+                            <p style="font-size:14px; color:#888888; line-height:1.6;">
+                                If you have any questions, our support team is here to help anytime.
+                            </p>
+                            <p style="font-size:16px; color:#555555; line-height:1.6;">
+                                Best regards,<br>
+                                <strong>The {{.Name}} Team</strong>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background-color:#f1f1f1; padding:15px; text-align:center; font-size:12px; color:#999999;">
+                            &copy; {{.Name}}. All rights reserved.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+{{end}}

@@ -3,6 +3,7 @@ package controllers
 import (
 	"bougette-backend/common"
 	"bougette-backend/dtos"
+	"bougette-backend/models"
 	"bougette-backend/services"
 	"bougette-backend/validation"
 
@@ -11,6 +12,10 @@ import (
 
 type UsersController struct {
 	UsersService *services.UsersService
+}
+
+func NewUsersController(usersService *services.UsersService) *UsersController {
+	return &UsersController{UsersService: usersService}
 }
 
 func (u *UsersController) RegisterUser(c echo.Context) error {
@@ -24,5 +29,26 @@ func (u *UsersController) RegisterUser(c echo.Context) error {
 		return common.SendFailedValidationResponse(c, validationErrors)
 	}
 
-	return common.SendSuccessResponse(c, "User registration successful", nil)
+	exits, err := u.UsersService.CheckUserExits(request.Email)
+	if err != nil {
+		return common.SendInternalServerErrorResponse(c, err.Error())
+	}
+
+	if exits {
+		return common.SendBadRequestResponse(c, "User with this email already exits")
+	}
+
+	user := models.Users{
+		FirstName: &request.FirstName,
+		LastName:  &request.LastName,
+		Gender:    &request.Gender,
+		Email:     request.Email,
+		Password:  request.Password,
+	}
+
+	if err := u.UsersService.RegisterUser(&user); err != nil {
+		return common.SendNotFoundResponse(c, err.Error())
+	}
+
+	return common.SendSuccessResponse(c, "User registration successful", user)
 }

@@ -41,7 +41,7 @@ func SendFailedValidationResponse(c echo.Context, errors interface{}) error {
 
 func SendErrorsResponse(c echo.Context, message string, statusCode int) error {
 	return c.JSON(http.StatusExpectationFailed, ErrorResponse{
-		Success: true,
+		Success: false,
 		Message: message,
 	})
 }

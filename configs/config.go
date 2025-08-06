@@ -25,6 +25,7 @@ type Config struct {
 	MAIL_USERNAME string
 	MAIL_PASSWORD string
 	VIA_APP_NAME  string
+	JWT_SECRET    string
 }
 
 func getEnvOrDefault(env string, defaultValue string) string {
@@ -56,6 +57,7 @@ func loadEnv(env string) *Config {
 	cfg.MAIL_USERNAME = getEnvOrDefault("MAIL_USERNAME", "")
 	cfg.MAIL_PASSWORD = getEnvOrDefault("MAIL_PASSWORD", "")
 	cfg.VIA_APP_NAME = getEnvOrDefault("VIA_APP_NAME", "Bougette")
+	cfg.JWT_SECRET = getEnvOrDefault("JWT_SECRET", "your_jwt_secret")
 	return cfg
 }
 

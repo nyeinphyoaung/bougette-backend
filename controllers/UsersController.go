@@ -83,7 +83,7 @@ func (u *UsersController) LoginUser(c echo.Context) error {
 		return common.SendFailedValidationResponse(c, validationErrors)
 	}
 
-	user, err := u.UsersService.GetUserByEmail(request.Email)
+	user, accessToken, refreshToken, err := u.UsersService.LoginUser(request.Email, request.Password)
 	if err != nil {
 		return common.SendInternalServerErrorResponse(c, err.Error())
 	}
@@ -95,7 +95,9 @@ func (u *UsersController) LoginUser(c echo.Context) error {
 		return common.SendBadRequestResponse(c, "Invalid email or password")
 	}
 
-	// to generate token
-
-	return common.SendSuccessResponse(c, "User Login successful", user)
+	return common.SendSuccessResponse(c, "User Login successful", dtos.AuthResponseDTO{
+		User:         dtos.MapUserToDTO(user),
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	})
 }

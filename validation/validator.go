@@ -24,6 +24,8 @@ func FormatValidationErrors(err error) map[string]string {
 				formatted[field] = fmt.Sprintf("%s must be a valid email address", field)
 			case "oneof":
 				formatted[field] = fmt.Sprintf("%s must be one of: %s", field, e.Param())
+			case "min":
+				formatted[field] = fmt.Sprintf("%s must be at least %s characters", field, e.Param())
 			default:
 				formatted[field] = fmt.Sprintf("%s is not valid", field)
 			}

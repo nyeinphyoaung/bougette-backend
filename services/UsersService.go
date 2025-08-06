@@ -31,3 +31,7 @@ func (u *UsersService) CheckUserExits(email string) (bool, error) {
 	}
 	return user != nil, nil
 }
+
+func (u *UsersService) GetUserByEmail(email string) (*models.Users, error) {
+	return u.UsersRepos.FindUserByEmail(email)
+}

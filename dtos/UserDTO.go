@@ -5,5 +5,10 @@ type UserRequestDTO struct {
 	LastName  string `json:"last_name" validate:"required"`
 	Gender    string `json:"gender" validate:"oneof=male female prefer_not_to"`
 	Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required"`
+	Password  string `json:"password" validate:"required,min=8"`
+}
+
+type LoginRequestDTO struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
 }

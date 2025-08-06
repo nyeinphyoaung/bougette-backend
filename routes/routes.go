@@ -21,5 +21,6 @@ func initUsersRoutes(e *echo.Group, db *gorm.DB, mailer utilities.Mailer) {
 	usersService := services.NewUsersService(usersRepos)
 	usersController := controllers.NewUsersController(usersService, mailer)
 
-	e.POST("/users", usersController.RegisterUser)
+	e.POST("/register", usersController.RegisterUser)
+	e.POST("/login", usersController.LoginUser)
 }

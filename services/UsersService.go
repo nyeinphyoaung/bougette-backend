@@ -18,6 +18,10 @@ func (u *UsersService) GetUsers() ([]models.Users, error) {
 	return u.UsersRepos.GetUsers()
 }
 
+func (u *UsersService) GetUserByID(id uint) (*models.Users, error) {
+	return u.UsersRepos.GetUserByID(id)
+}
+
 func (u *UsersService) RegisterUser(user *models.Users) error {
 	hashPassword, err := helper.HashPassword(user.Password)
 	if err != nil {
@@ -52,4 +56,8 @@ func (u *UsersService) CheckUserExits(email string) (bool, error) {
 
 func (u *UsersService) GetUserByEmail(email string) (*models.Users, error) {
 	return u.UsersRepos.FindUserByEmail(email)
+}
+
+func (u *UsersService) DeleteUser(id uint) error {
+	return u.UsersRepos.DeleteUser(id)
 }

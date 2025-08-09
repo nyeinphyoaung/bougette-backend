@@ -9,6 +9,7 @@ import (
 	"bougette-backend/utilities"
 	"bougette-backend/validation"
 	"fmt"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -28,6 +29,21 @@ func (u *UsersController) GetUsers(c echo.Context) error {
 		return common.SendInternalServerErrorResponse(c, err.Error())
 	}
 	return common.SendSuccessResponse(c, "Users retrieved successfully", users)
+}
+
+func (u *UsersController) GetUserByID(c echo.Context) error {
+	id := c.Param("id")
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		return common.SendBadRequestResponse(c, "Invalid user ID")
+	}
+
+	user, err := u.UsersService.GetUserByID(uint(i))
+	if err != nil {
+		return common.SendNotFoundResponse(c, "User not found")
+	}
+
+	return common.SendSuccessResponse(c, "User retrieved successfully", user)
 }
 
 func (u *UsersController) RegisterUser(c echo.Context) error {
@@ -108,4 +124,19 @@ func (u *UsersController) LoginUser(c echo.Context) error {
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	})
+}
+
+func (u *UsersController) DeleteUser(c echo.Context) error {
+	id := c.Param("id")
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		return common.SendBadRequestResponse(c, "Invalid user ID")
+	}
+
+	err = u.UsersService.DeleteUser(uint(i))
+	if err != nil {
+		return common.SendNotFoundResponse(c, "User not found")
+	}
+
+	return common.SendSuccessResponse(c, "User deleted successfully", nil)
 }

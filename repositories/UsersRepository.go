@@ -20,6 +20,13 @@ func (u *UsersRepository) GetUsers() ([]models.Users, error) {
 	return users, err
 }
 
+func (u *UsersRepository) GetUserByID(id uint) (*models.Users, error) {
+	var user models.Users
+
+	err := u.db.First(&user, id).Error
+	return &user, err
+}
+
 func (u *UsersRepository) RegisterUser(user *models.Users) error {
 	return u.db.Create(user).Error
 }
@@ -34,4 +41,8 @@ func (u *UsersRepository) FindUserByEmail(email string) (*models.Users, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (u *UsersRepository) DeleteUser(id uint) error {
+	return u.db.Delete(&models.Users{}, id).Error
 }

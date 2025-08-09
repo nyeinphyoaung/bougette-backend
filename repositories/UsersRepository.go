@@ -31,6 +31,14 @@ func (u *UsersRepository) RegisterUser(user *models.Users) error {
 	return u.db.Create(user).Error
 }
 
+func (u *UsersRepository) UpdateUser(user *models.Users) error {
+	if err := u.db.Model(user).Updates(user).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (u *UsersRepository) FindUserByEmail(email string) (*models.Users, error) {
 	var user models.Users
 
@@ -44,5 +52,5 @@ func (u *UsersRepository) FindUserByEmail(email string) (*models.Users, error) {
 }
 
 func (u *UsersRepository) DeleteUser(id uint) error {
-	return u.db.Delete(&models.Users{}, id).Error
+	return u.db.Unscoped().Delete(&models.Users{}, id).Error
 }

@@ -38,12 +38,28 @@ func (u *UsersService) LoginUser(email, password string) (*models.Users, string,
 		return nil, "", "", err
 	}
 
+	if user == nil {
+		return nil, "", "", err
+	}
+
 	accessToken, refreshToken, err := helper.GenerateToken(*user)
 	if err != nil {
 		return nil, "", "", err
 	}
 
 	return user, accessToken, refreshToken, nil
+}
+
+func (u *UsersService) UpdateUser(user *models.Users) error {
+	if user.Password != "" {
+		hashPassword, err := helper.HashPassword(user.Password)
+		if err != nil {
+			return err
+		}
+		user.Password = hashPassword
+	}
+
+	return u.UsersRepos.UpdateUser(user)
 }
 
 func (u *UsersService) CheckUserExits(email string) (bool, error) {

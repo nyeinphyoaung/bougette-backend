@@ -126,6 +126,34 @@ func (u *UsersController) LoginUser(c echo.Context) error {
 	})
 }
 
+func (u *UsersController) UpdateUser(c echo.Context) error {
+	id := c.Param("id")
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		return common.SendBadRequestResponse(c, "Invalid user ID")
+	}
+
+	user := new(models.Users)
+	user.ID = uint(i)
+	if _, err := u.UsersService.GetUserByID(user.ID); err != nil {
+		return common.SendNotFoundResponse(c, "User not found")
+	}
+
+	if err := c.Bind(user); err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	if err := validation.ValidateStruct(user); err != nil {
+		validationErrors := validation.FormatValidationErrors(err)
+		return common.SendFailedValidationResponse(c, validationErrors)
+	}
+
+	if err := u.UsersService.UpdateUser(user); err != nil {
+		return common.SendNotFoundResponse(c, "User not found or update failed")
+	}
+	return common.SendSuccessResponse(c, "User updated successfully", user)
+}
+
 func (u *UsersController) DeleteUser(c echo.Context) error {
 	id := c.Param("id")
 	i, err := strconv.Atoi(id)

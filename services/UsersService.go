@@ -1,9 +1,11 @@
 package services
 
 import (
+	"bougette-backend/dtos"
 	"bougette-backend/helper"
 	"bougette-backend/models"
 	"bougette-backend/repositories"
+	"fmt"
 )
 
 type UsersService struct {
@@ -76,4 +78,23 @@ func (u *UsersService) GetUserByEmail(email string) (*models.Users, error) {
 
 func (u *UsersService) DeleteUser(id uint) error {
 	return u.UsersRepos.DeleteUser(id)
+}
+
+func (u *UsersService) ChangePassword(id uint, request *dtos.ChangePasswordRequestDTO) error {
+	user, err := u.UsersRepos.GetUserByID(id)
+	if err != nil {
+		return err
+	}
+
+	if !helper.CheckPasswordHash(request.CurrentPassword, user.Password) {
+		return fmt.Errorf("current password is incorrect")
+	}
+
+	hashPassword, err := helper.HashPassword(request.NewPassword)
+	if err != nil {
+		return nil
+	}
+
+	user.Password = hashPassword
+	return u.UsersRepos.UpdateUser(user)
 }

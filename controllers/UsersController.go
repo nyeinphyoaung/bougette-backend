@@ -168,3 +168,21 @@ func (u *UsersController) DeleteUser(c echo.Context) error {
 
 	return common.SendSuccessResponse(c, "User deleted successfully", nil)
 }
+
+func (u *UsersController) ChangePassword(c echo.Context) error {
+	id := c.Param("id")
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		return common.SendBadRequestResponse(c, "Invalid user ID")
+	}
+
+	request := new(dtos.ChangePasswordRequestDTO)
+	if err := c.Bind(request); err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	if err := u.UsersService.ChangePassword(uint(i), request); err != nil {
+		return common.SendNotFoundResponse(c, "User not found or password change failed")
+	}
+	return common.SendSuccessResponse(c, "Password changed successfully", nil)
+}

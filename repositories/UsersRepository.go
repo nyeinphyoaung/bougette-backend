@@ -14,6 +14,12 @@ func NewUsersRepository(db *gorm.DB) *UsersRepository {
 	return &UsersRepository{db: db}
 }
 
+func (u *UsersRepository) GetUsers() ([]models.Users, error) {
+	var users []models.Users
+	err := u.db.Find(&users).Error
+	return users, err
+}
+
 func (u *UsersRepository) RegisterUser(user *models.Users) error {
 	return u.db.Create(user).Error
 }

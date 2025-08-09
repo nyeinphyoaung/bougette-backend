@@ -22,6 +22,14 @@ func NewUsersController(usersService *services.UsersService, mailer utilities.Ma
 	return &UsersController{UsersService: usersService, Mailer: mailer}
 }
 
+func (u *UsersController) GetUsers(c echo.Context) error {
+	users, err := u.UsersService.GetUsers()
+	if err != nil {
+		return common.SendInternalServerErrorResponse(c, err.Error())
+	}
+	return common.SendSuccessResponse(c, "Users retrieved successfully", users)
+}
+
 func (u *UsersController) RegisterUser(c echo.Context) error {
 	request := new(dtos.UserRequestDTO)
 	if err := c.Bind(request); err != nil {

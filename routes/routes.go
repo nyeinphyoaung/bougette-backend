@@ -2,6 +2,7 @@ package routes
 
 import (
 	"bougette-backend/controllers"
+	"bougette-backend/middlewares"
 	"bougette-backend/repositories"
 	"bougette-backend/services"
 	"bougette-backend/utilities"
@@ -21,6 +22,7 @@ func initUsersRoutes(e *echo.Group, db *gorm.DB, mailer utilities.Mailer) {
 	usersService := services.NewUsersService(usersRepos)
 	usersController := controllers.NewUsersController(usersService, mailer)
 
+	e.GET("/users", usersController.GetUsers, middlewares.IsAuthenticated)
 	e.POST("/register", usersController.RegisterUser)
 	e.POST("/login", usersController.LoginUser)
 }

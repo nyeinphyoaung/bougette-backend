@@ -98,3 +98,8 @@ func ParseRefreshToken(tokenString string) (*CustomClaims, error) {
 
 	return claims, nil
 }
+
+func IsTokenExpired(claims *CustomClaims) bool {
+	currentTime := jwt.NewNumericDate(time.Now())
+	return claims.ExpiresAt.Time.Before(currentTime.Time)
+}

@@ -14,6 +14,10 @@ func NewUsersService(usersRepo *repositories.UsersRepository) *UsersService {
 	return &UsersService{UsersRepos: usersRepo}
 }
 
+func (u *UsersService) GetUsers() ([]models.Users, error) {
+	return u.UsersRepos.GetUsers()
+}
+
 func (u *UsersService) RegisterUser(user *models.Users) error {
 	hashPassword, err := helper.HashPassword(user.Password)
 	if err != nil {

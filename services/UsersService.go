@@ -5,7 +5,9 @@ import (
 	"bougette-backend/helper"
 	"bougette-backend/models"
 	"bougette-backend/repositories"
+	"errors"
 	"fmt"
+	"time"
 )
 
 type UsersService struct {
@@ -97,4 +99,86 @@ func (u *UsersService) ChangePassword(id uint, request *dtos.ChangePasswordReque
 
 	user.Password = hashPassword
 	return u.UsersRepos.UpdateUser(user)
+}
+
+func (u *UsersService) ForgotPassword(email string) (string, error) {
+	user, err := u.UsersRepos.FindUserByEmail(email)
+	if err != nil {
+		return "", err
+	}
+	if user == nil {
+		return "", errors.New("user not found for password reset")
+	}
+
+	token := helper.GeneratePasswordToken()
+	if token == "" {
+		return "", errors.New("failed to generate token")
+	}
+
+	passwordReset := &models.PasswordReset{
+		UserID:    user.ID,
+		Token:     token,
+		ExpiredAt: time.Now().Add(time.Minute * 15), // 15 min
+		Used:      false,
+	}
+
+	if err := u.UsersRepos.InvalidateOldPasswordResets(user.ID); err != nil {
+		fmt.Printf("Warning: Could not invalidate old password resets for user %d: %v\n", user.ID, err)
+	}
+
+	if err := u.UsersRepos.CreatePasswordReset(passwordReset); err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (u *UsersService) ValidatePasswordResetToken(token dtos.PasswordResetTokenDTO) error {
+	passwordReset, err := u.UsersRepos.GetPasswordResetByTokenAndEmail(token.Token, token.Email)
+	if err != nil {
+		return errors.New("invalid or expired password reset token")
+	}
+
+	if passwordReset.ExpiredAt.Before(time.Now()) {
+		return errors.New("password reset token has expired")
+	}
+	if passwordReset.Used {
+		return errors.New("password reset token has already been used")
+	}
+	return nil
+}
+
+func (u *UsersService) ResetPassword(request *dtos.PasswordResetNewPasswordDTO) error {
+	user, err := u.UsersRepos.FindUserByEmail(request.Email)
+	if err != nil || user == nil {
+		return errors.New("user not found")
+	}
+
+	passwordReset, err := u.UsersRepos.GetPasswordResetByTokenAndEmail(request.Token, request.Email)
+	if err != nil {
+		return errors.New("invalid or expired password reset token")
+	}
+
+	if passwordReset.UserID != user.ID {
+		return errors.New("invalid password reset token for this user")
+	}
+
+	if passwordReset.ExpiredAt.Before(time.Now()) {
+		return errors.New("password reset token has expired")
+	}
+	if passwordReset.Used {
+		return errors.New("password reset token has already been used")
+	}
+
+	hashedPassword, err := helper.HashPassword(request.NewPassword)
+	if err != nil {
+		return errors.New("failed to hash new password")
+	}
+
+	err = u.UsersRepos.ResetUserPasswordAndMarkTokenUsed(user, hashedPassword, passwordReset)
+	if err != nil {
+		return errors.New("failed to reset password, please try again")
+	}
+
+	return nil
 }

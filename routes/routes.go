@@ -29,4 +29,7 @@ func initUsersRoutes(e *echo.Group, db *gorm.DB, mailer utilities.Mailer) {
 	e.PUT("/user/:id", usersController.UpdateUser, middlewares.IsAuthenticated)
 	e.PUT("/user/:id/change-password", usersController.ChangePassword, middlewares.IsAuthenticated)
 	e.DELETE("/user/:id", usersController.DeleteUser, middlewares.IsAuthenticated)
+	e.POST("/forgot-password", usersController.ForgotPassword)
+	e.POST("/validate-password-reset-token", usersController.ValidatePasswordResetToken)
+	e.POST("/reset-password", usersController.ResetPassword)
 }

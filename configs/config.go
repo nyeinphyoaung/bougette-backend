@@ -77,6 +77,7 @@ func (c *Config) ConnectDB() error {
 func (c *Config) InitializedDB() {
 	c.DB.AutoMigrate(
 		&models.Users{},
+		&models.PasswordReset{},
 	)
 }
 

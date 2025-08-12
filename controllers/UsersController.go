@@ -186,3 +186,73 @@ func (u *UsersController) ChangePassword(c echo.Context) error {
 	}
 	return common.SendSuccessResponse(c, "Password changed successfully", nil)
 }
+
+func (u *UsersController) ForgotPassword(c echo.Context) error {
+	request := new(dtos.PasswordResetRequestDTO)
+	if err := c.Bind(request); err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	if err := validation.ValidateStruct(request); err != nil {
+		validationErrors := validation.FormatValidationErrors(err)
+		return common.SendFailedValidationResponse(c, validationErrors)
+	}
+
+	token, err := u.UsersService.ForgotPassword(request.Email)
+	if err != nil {
+		return common.SendNotFoundResponse(c, err.Error())
+	}
+
+	mailData := utilities.MailData{
+		Subject: "Bougette - Password Reset Request",
+		Meta: struct {
+			Token       string
+			FrontendURL string
+			Name        string
+		}{
+			Token:       token,
+			FrontendURL: fmt.Sprintf("%s/reset-password?token=%s&email=%s", request.FrontendURL, token, request.Email), // Construct reset link
+			Name:        "Bougette",
+		},
+	}
+
+	if err := u.Mailer.SendViaMail(request.Email, "reset-password.html", mailData); err != nil {
+		fmt.Println("Password reset email sent failed:", err)
+	}
+
+	return common.SendSuccessResponse(c, "Password reset link sent successfully", nil)
+}
+
+func (u *UsersController) ValidatePasswordResetToken(c echo.Context) error {
+	token := new(dtos.PasswordResetTokenDTO)
+	if err := c.Bind(token); err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+	if err := validation.ValidateStruct(token); err != nil {
+		validationErrors := validation.FormatValidationErrors(err)
+		return common.SendFailedValidationResponse(c, validationErrors)
+	}
+	if err := u.UsersService.ValidatePasswordResetToken(*token); err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	return common.SendSuccessResponse(c, "Password reset token is valid", nil)
+}
+
+func (u *UsersController) ResetPassword(c echo.Context) error {
+	request := new(dtos.PasswordResetNewPasswordDTO)
+	if err := c.Bind(request); err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	if err := validation.ValidateStruct(request); err != nil {
+		validationErrors := validation.FormatValidationErrors(err)
+		return common.SendFailedValidationResponse(c, validationErrors)
+	}
+
+	if err := u.UsersService.ResetPassword(request); err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	return common.SendSuccessResponse(c, "Password has been reset successfully", nil)
+}

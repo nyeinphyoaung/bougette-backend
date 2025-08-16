@@ -78,6 +78,7 @@ func (c *Config) InitializedDB() {
 	c.DB.AutoMigrate(
 		&models.Users{},
 		&models.PasswordReset{},
+		&models.Categories{},
 	)
 }
 

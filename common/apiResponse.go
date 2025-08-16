@@ -1,7 +1,10 @@
 package common
 
 import (
+	"bougette-backend/configs"
 	"net/http"
+
+	"gorm.io/gorm"
 
 	"github.com/labstack/echo/v4"
 )
@@ -63,4 +66,13 @@ func SendUnauthorizedResponse(c echo.Context, message string) error {
 		Success: false,
 		Message: message,
 	})
+}
+
+func GetDB() (*gorm.DB, error) {
+	if configs.Envs.DB == nil {
+		if err := configs.Envs.ConnectDB(); err != nil {
+			return nil, err
+		}
+	}
+	return configs.Envs.DB, nil
 }

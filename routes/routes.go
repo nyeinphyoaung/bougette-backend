@@ -40,7 +40,7 @@ func initCategoriesRoutes(e *echo.Group, db *gorm.DB) {
 	categoriesService := services.NewCategoriesService(categoriesRepos)
 	categoriesController := controllers.NewCategoriesController(categoriesService)
 
-	e.GET("/categories", categoriesController.GetAllCategories, middlewares.IsAuthenticated)
+	e.GET("/categories", categoriesController.GetPaginatedCategories, middlewares.IsAuthenticated)
 	e.GET("/category/:id", categoriesController.GetCategoryByID, middlewares.IsAuthenticated)
 	e.POST("/categories", categoriesController.CreateCategory, middlewares.IsAuthenticated)
 	e.PUT("/category/:id", categoriesController.UpdateCategory, middlewares.IsAuthenticated)

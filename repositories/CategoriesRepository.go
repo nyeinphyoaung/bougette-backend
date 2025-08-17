@@ -14,10 +14,13 @@ func NewCategoriesRepository(db *gorm.DB) *CategoriesRepository {
 	return &CategoriesRepository{db: db}
 }
 
-func (c *CategoriesRepository) GetAllCategories() ([]models.Categories, error) {
+// PaginatedCategoriesWithSort returns paginated categories and total count with sorting
+func (c *CategoriesRepository) PaginatedCategoriesWithSort(limit, offset int, sort string) ([]models.Categories, int64, error) {
 	var categories []models.Categories
-	err := c.db.Find(&categories).Error
-	return categories, err
+	var total int64
+	c.db.Model(&models.Categories{}).Count(&total)
+	err := c.db.Order(sort).Limit(limit).Offset(offset).Find(&categories).Error
+	return categories, total, err
 }
 
 func (c *CategoriesRepository) GetCategoryByID(id uint) (*models.Categories, error) {

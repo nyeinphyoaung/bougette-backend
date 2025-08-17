@@ -13,8 +13,9 @@ func NewCategoriesService(categoriesRepo *repositories.CategoriesRepository) *Ca
 	return &CategoriesService{CategoriesRepos: categoriesRepo}
 }
 
-func (c *CategoriesService) GetAllCategories() ([]models.Categories, error) {
-	return c.CategoriesRepos.GetAllCategories()
+// PaginatedCategoriesWithSort returns paginated categories and total count with sorting
+func (c *CategoriesService) PaginatedCategoriesWithSort(limit, offset int, sort string) ([]models.Categories, int64, error) {
+	return c.CategoriesRepos.PaginatedCategoriesWithSort(limit, offset, sort)
 }
 
 func (c *CategoriesService) GetCategoryByID(id uint) (*models.Categories, error) {

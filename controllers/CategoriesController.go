@@ -20,13 +20,41 @@ func NewCategoriesController(categoriesService *services.CategoriesService) *Cat
 	return &CategoriesController{CategoriesService: categoriesService}
 }
 
-func (c *CategoriesController) GetAllCategories(ctx echo.Context) error {
-	categories, err := c.CategoriesService.GetAllCategories()
+// Efficient pagination implemented here.
+// For more advanced options, refer to the official GORM Scopes pagination documentation.
+func (c *CategoriesController) GetPaginatedCategories(ctx echo.Context) error {
+	// page = 2
+	// limit = 5
+	// offset = (2 - 1) * 5 = 5 → skip first 5 items
+	page := 1
+	limit := 10
+	sort := "id desc" // name desc dynamically like that
+	if p := ctx.QueryParam("page"); p != "" {
+		if v, err := strconv.Atoi(p); err == nil && v > 0 {
+			page = v
+		}
+	}
+	if l := ctx.QueryParam("limit"); l != "" {
+		if v, err := strconv.Atoi(l); err == nil && v > 0 {
+			limit = v
+		}
+	}
+	if s := ctx.QueryParam("sort"); s != "" {
+		sort = s
+	}
+	offset := (page - 1) * limit
+	categories, total, err := c.CategoriesService.PaginatedCategoriesWithSort(limit, offset, sort)
 	if err != nil {
 		return common.SendInternalServerErrorResponse(ctx, err.Error())
 	}
-
-	return common.SendSuccessResponse(ctx, "Categories retrieved successfully", categories)
+	response := map[string]interface{}{
+		"categories": categories,
+		"total":      total,
+		"page":       page,
+		"limit":      limit,
+		"sort":       sort,
+	}
+	return common.SendSuccessResponse(ctx, "Categories retrieved successfully", response)
 }
 
 func (c *CategoriesController) GetCategoryByID(ctx echo.Context) error {

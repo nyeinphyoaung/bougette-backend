@@ -99,7 +99,7 @@ func (c *CategoriesController) CreateCategory(ctx echo.Context) error {
 		Slug: slug,
 	}
 	if err := c.CategoriesService.CreateCategory(&category); err != nil {
-		return common.SendNotFoundResponse(ctx, err.Error())
+		return common.SendInternalServerErrorResponse(ctx, "Category could not be created")
 	}
 
 	return common.SendSuccessResponse(ctx, "Category created successfully", category)

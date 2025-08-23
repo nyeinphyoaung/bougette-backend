@@ -45,3 +45,7 @@ func (u *CategoriesService) CheckCategoryExits(name string) (bool, error) {
 func (c *CategoriesService) FindCategoryByName(name string) (*models.Categories, error) {
 	return c.CategoriesRepos.FindCategoryByName(name)
 }
+
+func (c *CategoriesService) GetCategoriesByIDs(ids []uint64) ([]models.Categories, error) {
+	return c.CategoriesRepos.GetCategoriesByIDs(ids)
+}

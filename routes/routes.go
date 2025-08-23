@@ -16,6 +16,7 @@ func InitialRoute(e *echo.Echo, db *gorm.DB, mailer utilities.Mailer) {
 
 	initUsersRoutes(api, db, mailer)
 	initCategoriesRoutes(api, db)
+	initBudgetsRoutes(api, db)
 }
 
 func initUsersRoutes(e *echo.Group, db *gorm.DB, mailer utilities.Mailer) {
@@ -45,4 +46,14 @@ func initCategoriesRoutes(e *echo.Group, db *gorm.DB) {
 	e.POST("/categories", categoriesController.CreateCategory, middlewares.IsAuthenticated)
 	e.PUT("/category/:id", categoriesController.UpdateCategory, middlewares.IsAuthenticated)
 	e.DELETE("/category/:id", categoriesController.DeleteCategory, middlewares.IsAuthenticated)
+}
+
+func initBudgetsRoutes(e *echo.Group, db *gorm.DB) {
+	budgetsRepos := repositories.NewBudgetsRepository(db)
+	budgetsService := services.NewBudgetsService(budgetsRepos)
+	categoriesRepos := repositories.NewCategoriesRepository(db)
+	categoriesService := services.NewCategoriesService(categoriesRepos)
+	budgetsController := controllers.NewBudgetsController(budgetsService, categoriesService)
+
+	e.POST("/budgets", budgetsController.CreateBudgets, middlewares.IsAuthenticated)
 }

@@ -75,10 +75,19 @@ func (c *Config) ConnectDB() error {
 }
 
 func (c *Config) InitializedDB() {
+	// add drop table
+	// c.DB.Migrator().DropTable(
+	// 	&models.Users{},
+	// 	&models.PasswordReset{},
+	// 	&models.Categories{},
+	// 	&models.Budgets{},
+	// )
+
 	c.DB.AutoMigrate(
 		&models.Users{},
 		&models.PasswordReset{},
 		&models.Categories{},
+		&models.Budgets{},
 	)
 }
 

@@ -75,7 +75,7 @@ func (u *UsersController) RegisterUser(c echo.Context) error {
 	}
 
 	if err := u.UsersService.RegisterUser(&user); err != nil {
-		return common.SendNotFoundResponse(c, err.Error())
+		return common.SendInternalServerErrorResponse(c, "User could not be registered")
 	}
 
 	mailData := utilities.MailData{

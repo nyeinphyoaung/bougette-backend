@@ -58,3 +58,9 @@ func (c *CategoriesRepository) FindCategoryByName(name string) (*models.Categori
 
 	return &category, nil
 }
+
+func (c *CategoriesRepository) GetCategoriesByIDs(ids []uint64) ([]models.Categories, error) {
+	var categories []models.Categories
+	err := c.db.Where("id IN ?", ids).Find(&categories).Error
+	return categories, err
+}

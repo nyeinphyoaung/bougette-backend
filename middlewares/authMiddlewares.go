@@ -34,7 +34,7 @@ func IsAuthenticated(next echo.HandlerFunc) echo.HandlerFunc {
 			return common.SendUnauthorizedResponse(c, "Unauthorized: Token expired")
 		}
 
-		c.Set("userID", claims.UserID)
+		c.Set("user", claims.UserID)
 		return next(c)
 	}
 }

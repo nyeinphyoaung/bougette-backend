@@ -94,6 +94,11 @@ func (b *BudgetsController) CreateBudgets(ctx echo.Context) error {
 
 	// get all categories and attach categories association
 	if len(request.Categories) > 0 {
+		for _, catID := range request.Categories {
+			if _, err := b.CategoriesService.GetCategoryByID(uint(catID)); err != nil {
+				return common.SendBadRequestResponse(ctx, fmt.Sprintf("Category with ID %d does not exist", catID))
+			}
+		}
 		categories, err := b.CategoriesService.GetCategoriesByIDs(request.Categories)
 		if err != nil {
 			return common.SendInternalServerErrorResponse(ctx, "Failed to fetch categories")

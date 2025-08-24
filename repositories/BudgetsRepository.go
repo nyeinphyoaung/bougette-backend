@@ -48,3 +48,22 @@ func (b *BudgetsRepository) GetBudgetWithCategories(budgetID uint) (*models.Budg
 	}
 	return &budget, nil
 }
+
+func (b *BudgetsRepository) GetPaginatedBudgetsByUserID(userID uint, limit, offset int, sort string) ([]models.Budgets, int64, error) {
+	var budgets []models.Budgets
+	var total int64
+
+	// Count total budgets for this user
+	err := b.db.Model(&models.Budgets{}).Where("user_id = ?", userID).Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Get paginated budgets with categories preloaded
+	err = b.db.Where("user_id = ?", userID).Preload("Categories").Order(sort).Limit(limit).Offset(offset).Find(&budgets).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return budgets, total, nil
+}

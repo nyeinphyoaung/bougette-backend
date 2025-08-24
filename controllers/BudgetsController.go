@@ -8,6 +8,7 @@ import (
 	"bougette-backend/validation"
 
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -117,4 +118,59 @@ func (b *BudgetsController) CreateBudgets(ctx echo.Context) error {
 	}
 
 	return common.SendSuccessResponse(ctx, "Budget created successfully", createdBudget)
+}
+
+func (b *BudgetsController) GetPaginatedBudgets(ctx echo.Context) error {
+	userID, ok := ctx.Get("user").(uint)
+	if !ok {
+		return common.SendInternalServerErrorResponse(ctx, "User authentication required")
+	}
+
+	page := 1
+	limit := 10
+	sort := "created_at DESC"
+
+	if p := ctx.QueryParam("page"); p != "" {
+		if v, err := strconv.Atoi(p); err == nil && v > 0 {
+			page = v
+		}
+	}
+	if l := ctx.QueryParam("limit"); l != "" {
+		if v, err := strconv.Atoi(l); err == nil && v > 0 {
+			limit = v
+		}
+	}
+	if s := ctx.QueryParam("sort"); s != "" {
+		sort = s
+	}
+	offset := (page - 1) * limit
+
+	// if sortParam := ctx.QueryParam("sort"); sortParam != "" {
+	// 	// Validate sort parameter to prevent SQL injection
+	// 	allowedSorts := map[string]string{
+	// 		"created_at": "created_at",
+	// 		"updated_at": "updated_at",
+	// 		"amount":     "amount",
+	// 		"title":      "title",
+	// 		"date":       "date",
+	// 	}
+	// 	if allowedSort, exists := allowedSorts[sortParam]; exists {
+	// 		sort = allowedSort + " DESC"
+	// 	}
+	// }
+
+	budgets, total, err := b.BudgetsService.GetPaginatedBudgetsByUserID(userID, limit, offset, sort)
+	if err != nil {
+		return common.SendInternalServerErrorResponse(ctx, "Failed to fetch budgets")
+	}
+
+	response := map[string]interface{}{
+		"budgets": budgets,
+		"total":   total,
+		"page":    page,
+		"limit":   limit,
+		"sort":    sort,
+	}
+
+	return common.SendSuccessResponse(ctx, "Budgets retrieved successfully", response)
 }

@@ -32,3 +32,7 @@ func (b *BudgetsService) UpdateBudgetCategories(budgetID uint, categories []mode
 func (b *BudgetsService) GetBudgetWithCategories(budgetID uint) (*models.Budgets, error) {
 	return b.BudgetsRepos.GetBudgetWithCategories(budgetID)
 }
+
+func (b *BudgetsService) GetPaginatedBudgetsByUserID(userID uint, limit, offset int, sort string) ([]models.Budgets, int64, error) {
+	return b.BudgetsRepos.GetPaginatedBudgetsByUserID(userID, limit, offset, sort)
+}

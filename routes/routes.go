@@ -56,4 +56,5 @@ func initBudgetsRoutes(e *echo.Group, db *gorm.DB) {
 	budgetsController := controllers.NewBudgetsController(budgetsService, categoriesService)
 
 	e.POST("/budgets", budgetsController.CreateBudgets, middlewares.IsAuthenticated)
+	e.GET("/budgets", budgetsController.GetPaginatedBudgets, middlewares.IsAuthenticated)
 }

@@ -279,3 +279,30 @@ func (b *BudgetsController) UpdateBudget(ctx echo.Context) error {
 
 	return common.SendSuccessResponse(ctx, "Budget has been updated successfully", updatedBudget)
 }
+
+func (b *BudgetsController) DeleteBudget(ctx echo.Context) error {
+	userID, ok := ctx.Get("user").(uint)
+	if !ok {
+		return common.SendInternalServerErrorResponse(ctx, "User authentication required")
+	}
+
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return common.SendBadRequestResponse(ctx, "Invalid budget Id")
+	}
+
+	existingBudget, err := b.BudgetsService.GetBudgetByID(uint(id))
+	if err != nil {
+		return common.SendNotFoundResponse(ctx, "Budget not found")
+	}
+
+	if existingBudget.UserID != userID {
+		return common.SendUnauthorizedResponse(ctx, "You are not allowed to delete this budget")
+	}
+
+	if err := b.BudgetsService.DeleteBudget(uint(id)); err != nil {
+		return common.SendInternalServerErrorResponse(ctx, "Failed to delete budget")
+	}
+
+	return common.SendSuccessResponse(ctx, "Budget deleted successfully", nil)
+}

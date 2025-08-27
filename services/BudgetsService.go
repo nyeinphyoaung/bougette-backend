@@ -52,3 +52,7 @@ func (b *BudgetsService) CheckBudgetsExitExcludingID(UserID uint, month uint, ye
 func (b *BudgetsService) GetBudgetByID(id uint) (*models.Budgets, error) {
 	return b.BudgetsRepos.GetBudgetByID(id)
 }
+
+func (b *BudgetsService) DeleteBudget(id uint) error {
+	return b.BudgetsRepos.DeleteBudget(id)
+}

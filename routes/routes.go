@@ -58,4 +58,5 @@ func initBudgetsRoutes(e *echo.Group, db *gorm.DB) {
 	e.POST("/budgets", budgetsController.CreateBudgets, middlewares.IsAuthenticated)
 	e.GET("/budgets", budgetsController.GetPaginatedBudgets, middlewares.IsAuthenticated)
 	e.PATCH("/budgets/:id", budgetsController.UpdateBudget, middlewares.IsAuthenticated)
+	e.DELETE("/budgets/:id", budgetsController.DeleteBudget, middlewares.IsAuthenticated)
 }

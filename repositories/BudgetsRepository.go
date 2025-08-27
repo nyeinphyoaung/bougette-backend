@@ -97,3 +97,7 @@ func (b *BudgetsRepository) GetBudgetByID(id uint) (*models.Budgets, error) {
 	err := b.db.First(&budget, id).Error
 	return &budget, err
 }
+
+func (b *BudgetsRepository) DeleteBudget(id uint) error {
+	return b.db.Delete(&models.Budgets{}, id).Error
+}

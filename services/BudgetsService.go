@@ -36,3 +36,19 @@ func (b *BudgetsService) GetBudgetWithCategories(budgetID uint) (*models.Budgets
 func (b *BudgetsService) GetPaginatedBudgetsByUserID(userID uint, limit, offset int, sort string) ([]models.Budgets, int64, error) {
 	return b.BudgetsRepos.GetPaginatedBudgetsByUserID(userID, limit, offset, sort)
 }
+
+func (b *BudgetsService) UpdateBudget(budget *models.Budgets) error {
+	return b.BudgetsRepos.UpdateBudget(budget)
+}
+
+func (b *BudgetsService) CheckBudgetsExitExcludingID(UserID uint, month uint, year uint16, slug string, excludeID uint) (bool, error) {
+	budget, err := b.BudgetsRepos.CheckBudgetsExitExcludingID(UserID, month, year, slug, excludeID)
+	if err != nil {
+		return false, err
+	}
+	return budget != nil, nil
+}
+
+func (b *BudgetsService) GetBudgetByID(id uint) (*models.Budgets, error) {
+	return b.BudgetsRepos.GetBudgetByID(id)
+}

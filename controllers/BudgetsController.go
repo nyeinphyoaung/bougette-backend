@@ -174,3 +174,108 @@ func (b *BudgetsController) GetPaginatedBudgets(ctx echo.Context) error {
 
 	return common.SendSuccessResponse(ctx, "Budgets retrieved successfully", response)
 }
+
+func (b *BudgetsController) UpdateBudget(ctx echo.Context) error {
+	userID, ok := ctx.Get("user").(uint)
+	if !ok {
+		return common.SendInternalServerErrorResponse(ctx, "User authentication required")
+	}
+
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return common.SendBadRequestResponse(ctx, "Invalid budget Id")
+	}
+
+	existingBudget, err := b.BudgetsService.GetBudgetByID(uint(id))
+	if err != nil {
+		return common.SendNotFoundResponse(ctx, "Buget not found")
+	}
+
+	if existingBudget.UserID != userID {
+		return common.SendUnauthorizedResponse(ctx, "You are not allowed to update this budget")
+	}
+
+	request := new(dtos.UpdateBudgetRequestDTO)
+	if err := ctx.Bind(request); err != nil {
+		return common.SendBadRequestResponse(ctx, err.Error())
+	}
+
+	if err := validation.ValidateStruct(request); err != nil {
+		validationErrors := validation.FormatValidationErrors(err)
+		return common.SendFailedValidationResponse(ctx, validationErrors)
+	}
+
+	if request.Title != "" {
+		existingBudget.Title = request.Title
+		slug := strings.ToLower(request.Title)
+		slug = strings.Replace(slug, " ", "_", -1)
+		existingBudget.Slug = slug
+	}
+
+	if request.Amount > 0 {
+		existingBudget.Amount = request.Amount
+	}
+
+	if request.Description != nil {
+		existingBudget.Description = request.Description
+	}
+
+	if request.Date != "" {
+		var parsedDate time.Time
+		var parseErr error
+		if len(request.Date) == 10 {
+			parsedDate, parseErr = time.Parse("2006-01-02", request.Date)
+		} else {
+			parsedDate, parseErr = time.Parse("2006-01-02 15:04:05", request.Date)
+		}
+		if parseErr != nil {
+			return common.SendBadRequestResponse(ctx, "Invalid date format. Use YYYY-MM-DD or YYYY-MM-DD HH:MM:SS")
+		}
+		existingBudget.Date = parsedDate
+		existingBudget.Month = uint(parsedDate.Month())
+		existingBudget.Year = uint16(parsedDate.Year())
+	}
+
+	// CheckBudgetsExitExcludingID checks for an existing budget matching the
+	// provided user/month/year/slug combination, while excluding the given budget ID.
+	exists, err := b.BudgetsService.CheckBudgetsExitExcludingID(existingBudget.UserID, existingBudget.Month, existingBudget.Year, existingBudget.Slug, existingBudget.ID)
+	if err != nil {
+		return common.SendInternalServerErrorResponse(ctx, err.Error())
+	}
+	if exists {
+		return common.SendBadRequestResponse(ctx, "Budget with this userId, month, year and slug already exits")
+	}
+
+	if err := b.BudgetsService.UpdateBudget(existingBudget); err != nil {
+		return common.SendInternalServerErrorResponse(ctx, "Failed to update budget")
+	}
+
+	// If categories field is present (even empty), update association accordingly
+	if request.Categories != nil {
+		var categories []models.Categories
+		if len(request.Categories) > 0 {
+			for _, catID := range request.Categories {
+				if _, err := b.CategoriesService.GetCategoryByID(uint(catID)); err != nil {
+					return common.SendBadRequestResponse(ctx, fmt.Sprintf("Category with ID %d does not exist", catID))
+				}
+			}
+			var fetchErr error
+			categories, fetchErr = b.CategoriesService.GetCategoriesByIDs(request.Categories)
+			if fetchErr != nil {
+				return common.SendInternalServerErrorResponse(ctx, "Failed to fetch categories")
+			}
+		} else {
+			categories = []models.Categories{}
+		}
+		if err := b.BudgetsService.UpdateBudgetCategories(existingBudget.ID, categories); err != nil {
+			return common.SendInternalServerErrorResponse(ctx, "Failed to attach categories to budget")
+		}
+	}
+
+	updatedBudget, err := b.BudgetsService.GetBudgetWithCategories(existingBudget.ID)
+	if err != nil {
+		return common.SendInternalServerErrorResponse(ctx, "Budget updated but failed to load with categories")
+	}
+
+	return common.SendSuccessResponse(ctx, "Budget has been updated successfully", updatedBudget)
+}

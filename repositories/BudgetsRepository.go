@@ -101,3 +101,51 @@ func (b *BudgetsRepository) GetBudgetByID(id uint) (*models.Budgets, error) {
 func (b *BudgetsRepository) DeleteBudget(id uint) error {
 	return b.db.Delete(&models.Budgets{}, id).Error
 }
+
+func (b *BudgetsRepository) CreateBudgetWithCategories(budget *models.Budgets, categoryIDs []uint64) error {
+	return b.db.Transaction(func(tx *gorm.DB) error {
+		// Create the budget
+		if err := tx.Create(budget).Error; err != nil {
+			return err
+		}
+
+		// If categories are provided, fetch and associate them
+		if len(categoryIDs) > 0 {
+			var categories []models.Categories
+			if err := tx.Where("id IN ?", categoryIDs).Find(&categories).Error; err != nil {
+				return err
+			}
+
+			// Associate categories with the budget
+			if err := tx.Model(budget).Association("Categories").Replace(categories); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+func (b *BudgetsRepository) UpdateBudgetWithCategories(budget *models.Budgets, categoryIDs []uint64) error {
+	return b.db.Transaction(func(tx *gorm.DB) error {
+		// Update the budget
+		if err := tx.Model(budget).Updates(budget).Error; err != nil {
+			return err
+		}
+
+		// Handle category associations
+		var categories []models.Categories
+		if len(categoryIDs) > 0 {
+			if err := tx.Where("id IN ?", categoryIDs).Find(&categories).Error; err != nil {
+				return err
+			}
+		}
+
+		// Replace categories association (this handles both adding new and clearing existing)
+		if err := tx.Model(budget).Association("Categories").Replace(categories); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}

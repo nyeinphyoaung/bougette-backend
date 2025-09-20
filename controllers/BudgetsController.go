@@ -89,26 +89,9 @@ func (b *BudgetsController) CreateBudgets(ctx echo.Context) error {
 		return common.SendBadRequestResponse(ctx, "Budget with this userId, month, year and slug already exits")
 	}
 
-	if err := b.BudgetsService.CreateBudgets(&budget); err != nil {
+	// Create budget with categories in a single transaction
+	if err := b.BudgetsService.CreateBudgetWithCategories(&budget, request.Categories); err != nil {
 		return common.SendInternalServerErrorResponse(ctx, "Budget could not be created")
-	}
-
-	// get all categories and attach categories association
-	if len(request.Categories) > 0 {
-		for _, catID := range request.Categories {
-			if _, err := b.CategoriesService.GetCategoryByID(uint(catID)); err != nil {
-				return common.SendBadRequestResponse(ctx, fmt.Sprintf("Category with ID %d does not exist", catID))
-			}
-		}
-		categories, err := b.CategoriesService.GetCategoriesByIDs(request.Categories)
-		if err != nil {
-			return common.SendInternalServerErrorResponse(ctx, "Failed to fetch categories")
-		}
-
-		// Update the budget with categories association
-		if err := b.BudgetsService.UpdateBudgetCategories(budget.ID, categories); err != nil {
-			return common.SendInternalServerErrorResponse(ctx, "Failed to attach categories to budget")
-		}
 	}
 
 	// Fetch the budget with categories loaded for response
@@ -246,32 +229,12 @@ func (b *BudgetsController) UpdateBudget(ctx echo.Context) error {
 		return common.SendBadRequestResponse(ctx, "Budget with this userId, month, year and slug already exits")
 	}
 
-	if err := b.BudgetsService.UpdateBudget(existingBudget); err != nil {
+	// Update budget with categories in a single transaction
+	if err := b.BudgetsService.UpdateBudgetWithCategories(existingBudget, request.Categories); err != nil {
 		return common.SendInternalServerErrorResponse(ctx, "Failed to update budget")
 	}
 
-	// If categories field is present (even empty), update association accordingly
-	if request.Categories != nil {
-		var categories []models.Categories
-		if len(request.Categories) > 0 {
-			for _, catID := range request.Categories {
-				if _, err := b.CategoriesService.GetCategoryByID(uint(catID)); err != nil {
-					return common.SendBadRequestResponse(ctx, fmt.Sprintf("Category with ID %d does not exist", catID))
-				}
-			}
-			var fetchErr error
-			categories, fetchErr = b.CategoriesService.GetCategoriesByIDs(request.Categories)
-			if fetchErr != nil {
-				return common.SendInternalServerErrorResponse(ctx, "Failed to fetch categories")
-			}
-		} else {
-			categories = []models.Categories{}
-		}
-		if err := b.BudgetsService.UpdateBudgetCategories(existingBudget.ID, categories); err != nil {
-			return common.SendInternalServerErrorResponse(ctx, "Failed to attach categories to budget")
-		}
-	}
-
+	// Load updated budget with categories for response
 	updatedBudget, err := b.BudgetsService.GetBudgetWithCategories(existingBudget.ID)
 	if err != nil {
 		return common.SendInternalServerErrorResponse(ctx, "Budget updated but failed to load with categories")

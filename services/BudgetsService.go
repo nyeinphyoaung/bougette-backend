@@ -56,3 +56,11 @@ func (b *BudgetsService) GetBudgetByID(id uint) (*models.Budgets, error) {
 func (b *BudgetsService) DeleteBudget(id uint) error {
 	return b.BudgetsRepos.DeleteBudget(id)
 }
+
+func (b *BudgetsService) CreateBudgetWithCategories(budget *models.Budgets, categoryIDs []uint64) error {
+	return b.BudgetsRepos.CreateBudgetWithCategories(budget, categoryIDs)
+}
+
+func (b *BudgetsService) UpdateBudgetWithCategories(budget *models.Budgets, categoryIDs []uint64) error {
+	return b.BudgetsRepos.UpdateBudgetWithCategories(budget, categoryIDs)
+}

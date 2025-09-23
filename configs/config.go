@@ -88,6 +88,7 @@ func (c *Config) InitializedDB() {
 		&models.PasswordReset{},
 		&models.Categories{},
 		&models.Budgets{},
+		&models.NotificationsModel{},
 	)
 }
 

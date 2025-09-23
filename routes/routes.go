@@ -11,18 +11,20 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitialRoute(e *echo.Echo, db *gorm.DB, mailer utilities.Mailer) {
+func InitialRoute(e *echo.Echo, db *gorm.DB, mailer utilities.Mailer, notificationsService *services.NotificationsService) {
 	api := e.Group("/api/v1")
 
-	initUsersRoutes(api, db, mailer)
+	initUsersRoutes(api, db, mailer, notificationsService)
 	initCategoriesRoutes(api, db)
 	initBudgetsRoutes(api, db)
+	initNotificationsRoutes(api, db)
+	initWebsocketRoutes(api)
 }
 
-func initUsersRoutes(e *echo.Group, db *gorm.DB, mailer utilities.Mailer) {
+func initUsersRoutes(e *echo.Group, db *gorm.DB, mailer utilities.Mailer, notificationsService *services.NotificationsService) {
 	usersRepos := repositories.NewUsersRepository(db)
 	usersService := services.NewUsersService(usersRepos)
-	usersController := controllers.NewUsersController(usersService, mailer)
+	usersController := controllers.NewUsersController(usersService, mailer, notificationsService)
 
 	e.GET("/users", usersController.GetUsers, middlewares.IsAuthenticated)
 	e.GET("/user/:id", usersController.GetUserByID, middlewares.IsAuthenticated)
@@ -59,4 +61,20 @@ func initBudgetsRoutes(e *echo.Group, db *gorm.DB) {
 	e.GET("/budgets", budgetsController.GetPaginatedBudgets, middlewares.IsAuthenticated)
 	e.PATCH("/budgets/:id", budgetsController.UpdateBudget, middlewares.IsAuthenticated)
 	e.DELETE("/budgets/:id", budgetsController.DeleteBudget, middlewares.IsAuthenticated)
+}
+
+func initNotificationsRoutes(e *echo.Group, db *gorm.DB) {
+	notificationsRepos := repositories.NewNotificationsRepos(db)
+	notificationsService := services.NewNotificationsService(notificationsRepos)
+	notificationsController := controllers.NewNotificationsController(notificationsService)
+
+	e.GET("/notifications/:user_id", notificationsController.GetNotificationsByUserID, middlewares.IsAuthenticated)
+	e.PUT("/notifications/:notification_id/read", notificationsController.MarkNotificationAsRead, middlewares.IsAuthenticated)
+	e.PUT("/notifications/:user_id/mark-all-read", notificationsController.MarkAllNotificationsAsRead, middlewares.IsAuthenticated)
+	e.DELETE("/notifications/:notification_id", notificationsController.DeleteNotification, middlewares.IsAuthenticated)
+	e.DELETE("/notifications/:user_id/clear", notificationsController.ClearAllNotifications, middlewares.IsAuthenticated)
+}
+
+func initWebsocketRoutes(e *echo.Group) {
+	e.GET("/ws/:user_id", controllers.HandleWebSocket)
 }

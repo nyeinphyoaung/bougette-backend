@@ -15,12 +15,13 @@ import (
 )
 
 type UsersController struct {
-	UsersService *services.UsersService
-	Mailer       utilities.Mailer
+	UsersService         *services.UsersService
+	Mailer               utilities.Mailer
+	NotificationsService *services.NotificationsService
 }
 
-func NewUsersController(usersService *services.UsersService, mailer utilities.Mailer) *UsersController {
-	return &UsersController{UsersService: usersService, Mailer: mailer}
+func NewUsersController(usersService *services.UsersService, mailer utilities.Mailer, notificationsService *services.NotificationsService) *UsersController {
+	return &UsersController{UsersService: usersService, Mailer: mailer, NotificationsService: notificationsService}
 }
 
 func (u *UsersController) GetUsers(c echo.Context) error {
@@ -118,6 +119,22 @@ func (u *UsersController) LoginUser(c echo.Context) error {
 	if !helper.CheckPasswordHash(request.Password, user.Password) {
 		return common.SendBadRequestResponse(c, "Invalid email or password")
 	}
+
+	welcomeMessage := fmt.Sprintf("Welcome to Bougette, %s! Your account has been created successfully.", *user.FirstName+" "+*user.LastName)
+	notification := &models.NotificationsModel{
+		UserID:  user.ID,
+		Message: welcomeMessage,
+		IsRead:  false,
+	}
+	if err := u.NotificationsService.CreateNotification(notification); err != nil {
+		return common.SendInternalServerErrorResponse(c, "Failed to create notification")
+	}
+
+	go utilities.SendWebsocketMessage(user.ID, utilities.SendWebsocketMessagePayload{
+		UserID:  user.ID,
+		Message: welcomeMessage,
+		IsRead:  false,
+	})
 
 	return common.SendSuccessResponse(c, "User Login successful", dtos.AuthResponseDTO{
 		User:         dtos.MapUserToDTO(user),

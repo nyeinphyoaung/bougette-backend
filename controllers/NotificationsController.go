@@ -18,7 +18,7 @@ func NewNotificationsController(service *services.NotificationsService) *Notific
 }
 
 func (c *NotificationsController) CreateNotification(ctx echo.Context) error {
-	notification := new(models.NotificationsModel)
+	notification := new(models.Notifications)
 	if err := ctx.Bind(notification); err != nil {
 		return common.SendBadRequestResponse(ctx, "Invalid notification")
 	}

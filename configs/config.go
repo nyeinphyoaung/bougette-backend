@@ -81,6 +81,7 @@ func (c *Config) InitializedDB() {
 	// 	&models.PasswordReset{},
 	// 	&models.Categories{},
 	// 	&models.Budgets{},
+	// 	&models.Notifications{},
 	// )
 
 	c.DB.AutoMigrate(
@@ -88,7 +89,7 @@ func (c *Config) InitializedDB() {
 		&models.PasswordReset{},
 		&models.Categories{},
 		&models.Budgets{},
-		&models.NotificationsModel{},
+		&models.Notifications{},
 	)
 }
 

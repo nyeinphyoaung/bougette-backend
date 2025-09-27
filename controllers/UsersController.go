@@ -121,7 +121,7 @@ func (u *UsersController) LoginUser(c echo.Context) error {
 	}
 
 	welcomeMessage := fmt.Sprintf("Welcome to Bougette, %s! Your account has been created successfully.", *user.FirstName+" "+*user.LastName)
-	notification := &models.NotificationsModel{
+	notification := &models.Notifications{
 		UserID:  user.ID,
 		Message: welcomeMessage,
 		IsRead:  false,

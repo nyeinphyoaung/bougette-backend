@@ -9,7 +9,7 @@ type NotificationsService struct {
 	repo *repositories.NotificationsRepository
 }
 
-func (s *NotificationsService) CreateNotification(notification *models.NotificationsModel) error {
+func (s *NotificationsService) CreateNotification(notification *models.Notifications) error {
 	return s.repo.CreateNotification(notification)
 }
 
@@ -17,7 +17,7 @@ func NewNotificationsService(repo *repositories.NotificationsRepository) *Notifi
 	return &NotificationsService{repo: repo}
 }
 
-func (s *NotificationsService) GetNotificationsByUserID(userID uint) ([]models.NotificationsModel, error) {
+func (s *NotificationsService) GetNotificationsByUserID(userID uint) ([]models.Notifications, error) {
 	return s.repo.GetNotificationsByUserID(userID)
 }
 

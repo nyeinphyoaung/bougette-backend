@@ -54,3 +54,16 @@ func (w *WalletController) CreateWallet(ctx echo.Context) error {
 
 	return common.SendSuccessResponse(ctx, "Wallet created successfully", wallet)
 }
+
+func (w *WalletController) GenerateDefaultWallet(ctx echo.Context) error {
+	userID, ok := ctx.Get("user").(uint)
+	if !ok {
+		return common.SendInternalServerErrorResponse(ctx, "User authentication required")
+	}
+
+	wallets, err := w.WalletService.GenerateDefaultWallet(userID)
+	if err != nil {
+		return common.SendInternalServerErrorResponse(ctx, "Failed to generate default wallet")
+	}
+	return common.SendSuccessResponse(ctx, "Default wallet generated successfully", wallets)
+}

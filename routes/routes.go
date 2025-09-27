@@ -82,6 +82,7 @@ func initWalletRoutes(e *echo.Group, db *gorm.DB) {
 	walletController := controllers.NewWalletController(walletService)
 
 	e.POST("/wallets", walletController.CreateWallet, middlewares.IsAuthenticated)
+	e.GET("/wallets/default", walletController.GenerateDefaultWallet, middlewares.IsAuthenticated)
 }
 
 func initWebsocketRoutes(e *echo.Group) {

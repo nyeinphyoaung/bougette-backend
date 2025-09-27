@@ -9,5 +9,6 @@ type Users struct {
 	// When you use json:"-" GORM’s .Updates(struct) ignores zero values for non-pointer fields.
 	Categories []Categories `gorm:"many2many:user_categories" json:"categories"`
 	Budgets    []Budgets    `gorm:"foreignKey:UserID" json:"-"`
+	Wallet     []Wallet     `gorm:"foreignKey:UserID" json:"wallet,omitempty"`
 	BaseModel
 }

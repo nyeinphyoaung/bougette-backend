@@ -18,6 +18,7 @@ func InitialRoute(e *echo.Echo, db *gorm.DB, mailer utilities.Mailer, notificati
 	initCategoriesRoutes(api, db)
 	initBudgetsRoutes(api, db)
 	initNotificationsRoutes(api, db)
+	initWalletRoutes(api, db)
 	initWebsocketRoutes(api)
 }
 
@@ -73,6 +74,14 @@ func initNotificationsRoutes(e *echo.Group, db *gorm.DB) {
 	e.PUT("/notifications/:user_id/mark-all-read", notificationsController.MarkAllNotificationsAsRead, middlewares.IsAuthenticated)
 	e.DELETE("/notifications/:notification_id", notificationsController.DeleteNotification, middlewares.IsAuthenticated)
 	e.DELETE("/notifications/:user_id/clear", notificationsController.ClearAllNotifications, middlewares.IsAuthenticated)
+}
+
+func initWalletRoutes(e *echo.Group, db *gorm.DB) {
+	walletRepos := repositories.NewWalletRepository(db)
+	walletService := services.NewWalletService(walletRepos)
+	walletController := controllers.NewWalletController(walletService)
+
+	e.POST("/wallets", walletController.CreateWallet, middlewares.IsAuthenticated)
 }
 
 func initWebsocketRoutes(e *echo.Group) {

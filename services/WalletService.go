@@ -17,6 +17,10 @@ func (s *WalletService) CreateWallet(wallet *models.Wallet) error {
 	return s.WalletRepos.CreateWallet(wallet)
 }
 
+func (s *WalletService) WalletsList(userID uint) ([]models.Wallet, error) {
+	return s.WalletRepos.WalletsList(userID)
+}
+
 func (s *WalletService) CheckWalletExitWithUserIDAndName(userID uint, name string) (bool, error) {
 	wallet, err := s.WalletRepos.CheckWalletExitWithUserIDAndName(userID, name)
 	if err != nil {

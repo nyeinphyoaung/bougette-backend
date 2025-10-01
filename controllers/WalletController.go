@@ -18,6 +18,19 @@ func NewWalletController(walletService *services.WalletService) *WalletControlle
 	return &WalletController{WalletService: walletService}
 }
 
+func (w *WalletController) WalletsList(ctx echo.Context) error {
+	userID, ok := ctx.Get("user").(uint)
+	if !ok {
+		return common.SendInternalServerErrorResponse(ctx, "User authentication required")
+	}
+
+	wallets, err := w.WalletService.WalletsList(userID)
+	if err != nil {
+		return common.SendInternalServerErrorResponse(ctx, "Failed to get wallets")
+	}
+	return common.SendSuccessResponse(ctx, "Wallets retrieved successfully", wallets)
+}
+
 func (w *WalletController) CreateWallet(ctx echo.Context) error {
 	userID, ok := ctx.Get("user").(uint)
 	if !ok {

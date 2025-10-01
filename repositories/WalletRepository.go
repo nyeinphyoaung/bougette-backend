@@ -14,6 +14,14 @@ func NewWalletRepository(db *gorm.DB) *WalletRepository {
 	return &WalletRepository{db: db}
 }
 
+func (w *WalletRepository) WalletsList(userID uint) ([]models.Wallet, error) {
+	var wallets []models.Wallet
+	if err := w.db.Where("user_id = ?", userID).Find(&wallets).Error; err != nil {
+		return nil, err
+	}
+	return wallets, nil
+}
+
 func (w *WalletRepository) CreateWallet(wallet *models.Wallet) error {
 	return w.db.Create(wallet).Error
 }

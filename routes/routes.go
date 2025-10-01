@@ -81,6 +81,7 @@ func initWalletRoutes(e *echo.Group, db *gorm.DB) {
 	walletService := services.NewWalletService(walletRepos)
 	walletController := controllers.NewWalletController(walletService)
 
+	e.GET("/wallets", walletController.WalletsList, middlewares.IsAuthenticated)
 	e.POST("/wallets", walletController.CreateWallet, middlewares.IsAuthenticated)
 	e.GET("/wallets/default", walletController.GenerateDefaultWallet, middlewares.IsAuthenticated)
 }

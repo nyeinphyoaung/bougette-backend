@@ -19,6 +19,7 @@ func InitialRoute(e *echo.Echo, db *gorm.DB, mailer utilities.Mailer, notificati
 	initBudgetsRoutes(api, db)
 	initNotificationsRoutes(api, db)
 	initWalletRoutes(api, db)
+	initUploadRoutes(api)
 	initWebsocketRoutes(api)
 }
 
@@ -84,6 +85,15 @@ func initWalletRoutes(e *echo.Group, db *gorm.DB) {
 	e.GET("/wallets", walletController.WalletsList, middlewares.IsAuthenticated)
 	e.POST("/wallets", walletController.CreateWallet, middlewares.IsAuthenticated)
 	e.GET("/wallets/default", walletController.GenerateDefaultWallet, middlewares.IsAuthenticated)
+}
+
+func initUploadRoutes(e *echo.Group) {
+	uploadService := services.NewUploadService()
+	uploadController := controllers.NewUploadController(uploadService)
+
+	e.POST("/upload/presigned-upload-url", uploadController.GeneratePresignedUploadURL, middlewares.IsAuthenticated)
+	e.GET("/upload/presigned-download-url/:key", uploadController.GeneratePresignedDownloadURL, middlewares.IsAuthenticated)
+	e.DELETE("/upload/delete/:key", uploadController.DeleteFile, middlewares.IsAuthenticated)
 }
 
 func initWebsocketRoutes(e *echo.Group) {

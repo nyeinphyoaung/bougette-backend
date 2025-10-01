@@ -11,21 +11,25 @@ import (
 )
 
 type Config struct {
-	ServerIP      string
-	ServerPort    string
-	DBName        string
-	DBHost        string
-	DBPort        string
-	DBUsername    string
-	DBPassword    string
-	DB            *gorm.DB
-	MAIL_SENDER   string
-	MAIL_HOST     string
-	MAIL_PORT     string
-	MAIL_USERNAME string
-	MAIL_PASSWORD string
-	VIA_APP_NAME  string
-	JWT_SECRET    string
+	ServerIP              string
+	ServerPort            string
+	DBName                string
+	DBHost                string
+	DBPort                string
+	DBUsername            string
+	DBPassword            string
+	DB                    *gorm.DB
+	MAIL_SENDER           string
+	MAIL_HOST             string
+	MAIL_PORT             string
+	MAIL_USERNAME         string
+	MAIL_PASSWORD         string
+	VIA_APP_NAME          string
+	JWT_SECRET            string
+	AWS_REGION            string
+	AWS_ACCESS_KEY_ID     string
+	AWS_SECRET_ACCESS_KEY string
+	AWS_BUCKET_NAME       string
 }
 
 func getEnvOrDefault(env string, defaultValue string) string {
@@ -58,6 +62,10 @@ func loadEnv(env string) *Config {
 	cfg.MAIL_PASSWORD = getEnvOrDefault("MAIL_PASSWORD", "")
 	cfg.VIA_APP_NAME = getEnvOrDefault("VIA_APP_NAME", "Bougette")
 	cfg.JWT_SECRET = getEnvOrDefault("JWT_SECRET", "your_jwt_secret")
+	cfg.AWS_REGION = getEnvOrDefault("AWS_REGION", "ap-southeast-1")
+	cfg.AWS_ACCESS_KEY_ID = getEnvOrDefault("AWS_ACCESS_KEY_ID", "")
+	cfg.AWS_SECRET_ACCESS_KEY = getEnvOrDefault("AWS_SECRET_ACCESS_KEY", "")
+	cfg.AWS_BUCKET_NAME = getEnvOrDefault("AWS_BUCKET_NAME", "")
 	return cfg
 }
 

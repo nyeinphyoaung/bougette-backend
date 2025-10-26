@@ -28,6 +28,10 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
+	if err := cfg.ConnectRedis(); err != nil {
+		e.Logger.Fatal(err)
+	}
+
 	cfg.InitializedDB()
 	mailer := utilities.NewMailer()
 

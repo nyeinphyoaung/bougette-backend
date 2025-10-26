@@ -2,10 +2,12 @@ package configs
 
 import (
 	"bougette-backend/models"
+	"context"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -19,6 +21,9 @@ type Config struct {
 	DBUsername            string
 	DBPassword            string
 	DB                    *gorm.DB
+	RedisHost             string
+	RedisPort             string
+	Redis                 *redis.Client
 	MAIL_SENDER           string
 	MAIL_HOST             string
 	MAIL_PORT             string
@@ -55,6 +60,8 @@ func loadEnv(env string) *Config {
 	cfg.DBPort = getEnvOrDefault("DB_PORT", "3306")
 	cfg.DBUsername = getEnvOrDefault("DB_USERNAME", "nyeinphyoaung")
 	cfg.DBPassword = getEnvOrDefault("DB_PASSWORD", "password")
+	cfg.RedisHost = getEnvOrDefault("REDIS_HOST", "localhost")
+	cfg.RedisPort = getEnvOrDefault("REDIS_PORT", "6379")
 	cfg.MAIL_SENDER = getEnvOrDefault("MAIL_SENDER", "")
 	cfg.MAIL_HOST = getEnvOrDefault("MAIL_HOST", "")
 	cfg.MAIL_PORT = getEnvOrDefault("MAIL_PORT", "2525")
@@ -79,6 +86,24 @@ func (c *Config) ConnectDB() error {
 
 	log.Println("Successfully connected to database")
 	c.DB = db
+	return nil
+}
+
+func (c *Config) ConnectRedis() error {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     c.RedisHost + ":" + c.RedisPort,
+		Password: "",
+		DB:       0,
+	})
+
+	ctx := context.Background()
+	_, err := rdb.Ping(ctx).Result()
+	if err != nil {
+		return err
+	}
+
+	log.Println("Successfully connected to Redis")
+	c.Redis = rdb
 	return nil
 }
 

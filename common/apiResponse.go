@@ -4,9 +4,9 @@ import (
 	"bougette-backend/configs"
 	"net/http"
 
-	"gorm.io/gorm"
-
 	"github.com/labstack/echo/v4"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
 type SuccessResponse struct {
@@ -75,4 +75,13 @@ func GetDB() (*gorm.DB, error) {
 		}
 	}
 	return configs.Envs.DB, nil
+}
+
+func GetRedis() (*redis.Client, error) {
+	if configs.Envs.Redis == nil {
+		if err := configs.Envs.ConnectRedis(); err != nil {
+			return nil, err
+		}
+	}
+	return configs.Envs.Redis, nil
 }
